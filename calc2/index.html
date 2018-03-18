@@ -6,7 +6,6 @@
 
 	<title>Заголовок</title>
 	<meta content="" name="description" />
-	<link rel="shortcut icon" href="favicon.png" />
 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,9 +13,42 @@
 	<link rel="stylesheet" href="css/main.css" />
 	<link rel="stylesheet" href="css/media.css" />
 	
-	<script src="js/common.js" defer></script>
+	
 </head>
 <body>
-	
+	<div class="calc grid">
+		<h2>Electronic calculator</h2>
+		<div class="result">
+			<span id="result">0</span>
+			<span id="show-actions">0</span>
+		</div>
+		<button id="ac">AC</button>
+		<button id="c">C</button>
+		<button id="action">&divide;</button>
+		<button id="action">&#215;</button>
+
+		<button id="number">7</button>
+		<button id="number">8</button>
+		<button id="number">9</button>
+		<button id="action">-</button>
+
+		<button id="number">4</button>
+		<button id="number">5</button>
+		<button id="number">6</button>
+		<button id="action">+</button>
+
+		<button id="number">1</button>
+		<button id="number">2</button>
+		<button id="number">3</button>
+		<button id="action" class="equal">=</button>
+
+		<button id="number" class="zero">0</button>
+		<button id="decimal">.</button>
+		
+	</div>
+
+
+
+	<script src="js/common.js"></script>
 </body>
 </html>
