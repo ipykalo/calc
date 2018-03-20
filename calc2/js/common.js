@@ -4,9 +4,9 @@ let number = document.querySelectorAll("#number");
 let actions = document.querySelectorAll("#action");
 let memoryCurrentNumber = "";
 let showFullAction = "";
-let showFullActionLength = "";
 let memoryPreviousNumber = 0;
-let operation = "";
+let operationCurrent = "";
+let operationPrevious = "";
 let operationResult = true;
 let resultOperation = 0;
 
@@ -20,12 +20,11 @@ actions.forEach(item => {
 
 function pressNumberButton(e) {
 	let num = e.target.innerText;
-	if (memoryCurrentNumber && memoryCurrentNumber.length >= 12) {
+	if (memoryCurrentNumber && memoryCurrentNumber.length >= 11) {
 		resetCalculator();
 	} else {
 		memoryCurrentNumber += num;
 		showFullAction += num;
-		showFullActionLength = showFullAction;
 		displayOperand(memoryCurrentNumber);
 		displayOperation(showFullAction);
 	}
@@ -33,64 +32,101 @@ function pressNumberButton(e) {
 
 function pressActionButton(e) {
 	let symbol = e.target.innerText;
-	console.log(e.target.innerText);
 	switch (symbol) {
 		case "+":
 			if (memoryCurrentNumber && operationResult) {
 				showFullAction += symbol;
-				showFullActionLength = showFullAction;
-				displayOperation(showFullActionLength);
-				operation = symbol;
-				writeIntoMemory(memoryCurrentNumber);
+				displayOperation(showFullAction);
+				operationCurrent = symbol;
+
+				if (
+					operationCurrent === operationPrevious ||
+					operationPrevious === ""
+				) {
+					writeIntoMemory(memoryCurrentNumber, operationCurrent);
+				} else {
+					changeOperator(operationPrevious, operationCurrent);
+				}
 			} else {
 				showFullAction = "";
-				showFullActionLength = "";
 				showFullAction += resultOperation + symbol;
-				showFullActionLength = showFullAction;
-				displayOperation(showFullActionLength);
-				operation = symbol;
-				writeIntoMemory(memoryCurrentNumber);
+				displayOperation(showFullAction);
+				operationCurrent = symbol;
+				writeIntoMemory(memoryCurrentNumber, operationCurrent);
 				operationResult = true;
 			}
 			break;
 		case "-":
-			if (memoryCurrentNumber) {
+			if (memoryCurrentNumber && operationResult) {
 				showFullAction += symbol;
-				showFullActionLength = showFullAction;
-				displayOperation(showFullActionLength);
-				operation = symbol;
-				writeIntoMemory(memoryCurrentNumber);
+				displayOperation(showFullAction);
+				operationCurrent = symbol;
+				if (
+					operationCurrent === operationPrevious ||
+					operationPrevious === ""
+				) {
+					writeIntoMemory(memoryCurrentNumber, operationCurrent);
+				} else {
+					changeOperator(operationPrevious, operationCurrent);
+				}
+			} else {
+				showFullAction = "";
+				showFullAction += resultOperation + symbol;
+				displayOperation(showFullAction);
+				operationCurrent = symbol;
+				writeIntoMemory(memoryCurrentNumber, operationCurrent);
+				operationResult = true;
 			}
 			break;
 		case "=":
 			if (memoryCurrentNumber) {
 				showFullAction += symbol;
-				showFullActionLength = showFullAction;
 				equalTo(memoryPreviousNumber);
 			}
 			break;
 	}
 }
 
-function writeIntoMemory(num) {
-	memoryCurrentNumber = "";
-	memoryPreviousNumber = memoryPreviousNumber + Number(num);
+function writeIntoMemory(value, operator) {
+	operationCurrent = "";
+	switch (operator) {
+		case "+":
+			memoryCurrentNumber = "";
+			memoryPreviousNumber = memoryPreviousNumber + Number(value);
+			operationPrevious = operator;
+			break;
+		case "-":
+			memoryCurrentNumber = "";
+			if (memoryPreviousNumber === 0) {
+				memoryPreviousNumber = Math.abs(memoryPreviousNumber - value);
+				operationPrevious = operator;
+			} else {
+				memoryPreviousNumber = memoryPreviousNumber - value;
+				operationPrevious = operator;
+			}
+			break;
+	}
 }
 
-/*function subtract(num) {
-	memoryPreviousNumber = memoryPreviousNumber - num;
-	console.log(memoryPreviousNumber);
-	//display.innerText = memoryPreviousNumber;
-}*/
-
-function equalTo(arg) {
-	switch (operation) {
+function equalTo(value) {
+	switch (operationPrevious) {
 		case "+":
-			resultOperation = arg + Number(memoryCurrentNumber);
+			resultOperation = (value * 100 + Number(memoryCurrentNumber) * 100) / 100;
 			displayOperand(resultOperation);
-			showFullActionLength = showFullAction + resultOperation;
-			displayOperation(showFullActionLength);
+			showFullAction += resultOperation;
+			displayOperation(showFullAction);
 			operationResult = false;
+			memoryPreviousNumber = resultOperation;
+			memoryCurrentNumber = "";
+			break;
+		case "-":
+			resultOperation = value - memoryCurrentNumber;
+			displayOperand(resultOperation);
+			showFullAction += resultOperation;
+			displayOperation(showFullAction);
+			operationResult = false;
+			memoryPreviousNumber = resultOperation;
+			memoryCurrentNumber = "";
 			break;
 	}
 }
@@ -114,11 +150,26 @@ function displayOperation(value) {
 function resetCalculator() {
 	memoryCurrentNumber = "";
 	showFullAction = "";
-	showFullActionLength = "";
 	memoryPreviousNumber = 0;
-	operation = "";
+	operationCurrent = "";
+	operationPrevious = "";
 	operationResult = true;
 	resultOperation = 0;
 	display.innerText = memoryPreviousNumber;
 	actionResult.innerText = "Digit Limit Met";
+}
+
+function changeOperator(lastOperation, currentOperation) {
+	switch (lastOperation) {
+		case "-":
+			memoryPreviousNumber = memoryPreviousNumber - memoryCurrentNumber;
+			memoryCurrentNumber = "";
+			operationPrevious = currentOperation;
+			break;
+		case "+":
+			memoryPreviousNumber = memoryPreviousNumber + Number(memoryCurrentNumber);
+			memoryCurrentNumber = "";
+			operationPrevious = currentOperation;
+			break;
+	}
 }
