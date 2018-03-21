@@ -48,12 +48,7 @@ function pressActionButton(e) {
 					changeOperator(operationPrevious, operationCurrent);
 				}
 			} else {
-				showFullAction = "";
-				showFullAction += resultOperation + symbol;
-				displayOperation(showFullAction);
-				operationCurrent = symbol;
-				writeIntoMemory(memoryCurrentNumber, operationCurrent);
-				operationResult = true;
+				pressActionButtonElse(symbol);
 			}
 			break;
 		case "-":
@@ -70,12 +65,43 @@ function pressActionButton(e) {
 					changeOperator(operationPrevious, operationCurrent);
 				}
 			} else {
-				showFullAction = "";
-				showFullAction += resultOperation + symbol;
+				pressActionButtonElse(symbol);
+			}
+			break;
+		case "×":
+			if (memoryCurrentNumber && operationResult) {
+				showFullAction += symbol;
 				displayOperation(showFullAction);
 				operationCurrent = symbol;
-				writeIntoMemory(memoryCurrentNumber, operationCurrent);
-				operationResult = true;
+
+				if (
+					operationCurrent === operationPrevious ||
+					operationPrevious === ""
+				) {
+					writeIntoMemory(memoryCurrentNumber, operationCurrent);
+				} else {
+					changeOperator(operationPrevious, operationCurrent);
+				}
+			} else {
+				pressActionButtonElse(symbol);
+			}
+			break;
+		case "÷":
+			if (memoryCurrentNumber && operationResult) {
+				showFullAction += symbol;
+				displayOperation(showFullAction);
+				operationCurrent = symbol;
+
+				if (
+					operationCurrent === operationPrevious ||
+					operationPrevious === ""
+				) {
+					writeIntoMemory(memoryCurrentNumber, operationCurrent);
+				} else {
+					changeOperator(operationPrevious, operationCurrent);
+				}
+			} else {
+				pressActionButtonElse(symbol);
 			}
 			break;
 		case "=":
@@ -98,10 +124,30 @@ function writeIntoMemory(value, operator) {
 		case "-":
 			memoryCurrentNumber = "";
 			if (memoryPreviousNumber === 0) {
-				memoryPreviousNumber = Math.abs(memoryPreviousNumber - value);
+				memoryPreviousNumber = value;
 				operationPrevious = operator;
 			} else {
 				memoryPreviousNumber = memoryPreviousNumber - value;
+				operationPrevious = operator;
+			}
+			break;
+		case "×":
+			memoryCurrentNumber = "";
+			if (memoryPreviousNumber === 0) {
+				memoryPreviousNumber = value;
+				operationPrevious = operator;
+			} else {
+				memoryPreviousNumber = memoryPreviousNumber * value;
+				operationPrevious = operator;
+			}
+			break;
+		case "÷":
+			memoryCurrentNumber = "";
+			if (memoryPreviousNumber === 0) {
+				memoryPreviousNumber = value;
+				operationPrevious = operator;
+			} else {
+				memoryPreviousNumber = memoryPreviousNumber / value;
 				operationPrevious = operator;
 			}
 			break;
@@ -121,6 +167,24 @@ function equalTo(value) {
 			break;
 		case "-":
 			resultOperation = value - memoryCurrentNumber;
+			displayOperand(resultOperation);
+			showFullAction += resultOperation;
+			displayOperation(showFullAction);
+			operationResult = false;
+			memoryPreviousNumber = resultOperation;
+			memoryCurrentNumber = "";
+			break;
+		case "×":
+			resultOperation = value * memoryCurrentNumber;
+			displayOperand(resultOperation);
+			showFullAction += resultOperation;
+			displayOperation(showFullAction);
+			operationResult = false;
+			memoryPreviousNumber = resultOperation;
+			memoryCurrentNumber = "";
+			break;
+		case "÷":
+			resultOperation = (value / memoryCurrentNumber).toFixed(2);
 			displayOperand(resultOperation);
 			showFullAction += resultOperation;
 			displayOperation(showFullAction);
@@ -171,5 +235,24 @@ function changeOperator(lastOperation, currentOperation) {
 			memoryCurrentNumber = "";
 			operationPrevious = currentOperation;
 			break;
+		case "×":
+			memoryPreviousNumber = memoryPreviousNumber * memoryCurrentNumber;
+			memoryCurrentNumber = "";
+			operationPrevious = currentOperation;
+			break;
+		case "÷":
+			memoryPreviousNumber = memoryPreviousNumber / memoryCurrentNumber;
+			memoryCurrentNumber = "";
+			operationPrevious = currentOperation;
+			break;
 	}
+}
+
+function pressActionButtonElse(sign) {
+	showFullAction = "";
+	showFullAction += resultOperation + sign;
+	displayOperation(showFullAction);
+	operationCurrent = sign;
+	writeIntoMemory(memoryCurrentNumber, operationCurrent);
+	operationResult = true;
 }
